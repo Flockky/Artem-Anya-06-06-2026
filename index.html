@@ -9,27 +9,18 @@
 /* --- НАСТРОЙКИ АНИМАЦИЙ (ЦЕНТРАЛИЗОВАННО) --- */
 /* ========================================= */
 :root {
-/* Длительность анимации */
 --anim-duration: 1.5s;
 --anim-duration-fast: 0.5s;
 --anim-duration-slow: 1s;
-
-/* Задержки для каскадного появления */
 --anim-delay-1: 0.1s;
 --anim-delay-2: 0.2s;
 --anim-delay-3: 0.3s;
 --anim-delay-4: 0.4s;
 --anim-delay-5: 0.5s;
-
-/* Дистанция движения (насколько выезжает) */
 --anim-distance-y: 40px;
 --anim-distance-x: 50px;
 --anim-distance-scale: 0.9;
-
-/* Порог срабатывания (0 = сразу, 1 = когда полностью видно) */
 --anim-threshold: 0.15;
-
-/* Отступ срабатывания (px) */
 --anim-root-margin: 0px;
 }
 
@@ -103,55 +94,24 @@ transform: translateY(var(--anim-distance-y));
 transition: opacity var(--anim-duration) ease-out, 
             transform var(--anim-duration) ease-out;
 }
-
 .animate-on-scroll.visible {
 opacity: 1;
 transform: translateY(0);
 }
-
-/* Задержки для каскадного эффекта */
 .animate-on-scroll.delay-1 { transition-delay: var(--anim-delay-1); }
 .animate-on-scroll.delay-2 { transition-delay: var(--anim-delay-2); }
 .animate-on-scroll.delay-3 { transition-delay: var(--anim-delay-3); }
 .animate-on-scroll.delay-4 { transition-delay: var(--anim-delay-4); }
 .animate-on-scroll.delay-5 { transition-delay: var(--anim-delay-5); }
-
-/* Для заголовков - быстрее */
-.animate-on-scroll.heading {
-transition-duration: var(--anim-duration-fast);
-}
-
-/* Выезд слева */
-.animate-on-scroll.from-left {
-transform: translateX(calc(var(--anim-distance-x) * -1));
-}
-.animate-on-scroll.from-left.visible {
-transform: translateX(0);
-}
-
-/* Выезд справа */
-.animate-on-scroll.from-right {
-transform: translateX(var(--anim-distance-x));
-}
-.animate-on-scroll.from-right.visible {
-transform: translateX(0);
-}
-
-/* Появление с увеличением */
-.animate-on-scroll.scale-in {
-transform: scale(var(--anim-distance-scale));
-}
-.animate-on-scroll.scale-in.visible {
-transform: scale(1);
-}
-
-/* Для календаря - особый эффект */
-.calendar-container.animate-on-scroll {
-transform: translateX(var(--anim-distance-x));
-}
-.calendar-container.animate-on-scroll.visible {
-transform: translateX(0);
-}
+.animate-on-scroll.heading { transition-duration: var(--anim-duration-fast); }
+.animate-on-scroll.from-left { transform: translateX(calc(var(--anim-distance-x) * -1)); }
+.animate-on-scroll.from-left.visible { transform: translateX(0); }
+.animate-on-scroll.from-right { transform: translateX(var(--anim-distance-x)); }
+.animate-on-scroll.from-right.visible { transform: translateX(0); }
+.animate-on-scroll.scale-in { transform: scale(var(--anim-distance-scale)); }
+.animate-on-scroll.scale-in.visible { transform: scale(1); }
+.calendar-container.animate-on-scroll { transform: translateX(var(--anim-distance-x)); }
+.calendar-container.animate-on-scroll.visible { transform: translateX(0); }
 
 /* Hero Section */
 .hero {
@@ -711,17 +671,15 @@ color: #fff; border: none; cursor: pointer; border-radius: 4px;
 /* ========================================= */
 @media (max-width: 968px) {
 :root {
---fs-names: 50px;
---fs-hero-date: 24px;
---fs-dear-friends: 20px;
---fs-info-text: 16px;
+--fs-names: 32px;
+--fs-hero-date: 16px;
+--fs-dear-friends: 14px;
+--fs-info-text: 13px;
 --fs-calendar-month: 20px;
 --fs-calendar-numbers: 18px;
 --fs-countdown-number: 36px;
 }
-.hero-content, .info-container, .venue-section, .dresscode-gallery {
-gap: 20px;
-}
+.hero-content, .info-container, .venue-section, .dresscode-gallery { gap: 20px; }
 .arch-frame, .arch-frame-medium { max-width: 300px; }
 .calendar-container { width: 260px; min-width: 240px; }
 .venue-text { text-align: center; padding-left: 10px}
@@ -732,7 +690,7 @@ gap: 20px;
 --fs-names: 32px;
 --fs-hero-date: 16px;
 --fs-dear-friends: 16px;
---fs-info-text: 12px;
+--fs-info-text: 10px;
 --fs-calendar-month: 14px;
 --fs-calendar-days: 8px;
 --fs-calendar-numbers: 12px;
@@ -758,46 +716,50 @@ gap: 20px;
 }
 body { font-size: 14px; }
 section { padding-left: 10px !important; padding-right: 10px !important; }
-.hero { padding: 20px 5px; min-height: 90vh; }
 
-/* === ИСПРАВЛЕНИЕ ДЛЯ 375-425px === */
+/* === ИСПРАВЛЕНИЕ ДЛЯ МОБИЛЬНЫХ === */
+.hero { 
+  padding: 15px 5px; 
+  /* min-height: 90vh; ← УБРАНО: фон теперь по контенту */
+  min-height: auto;    /* ← ДОБАВЛЕНО */
+  height: auto;        /* ← ДОБАВЛЕНО */
+}
 .hero-content {
-  /* flex-direction: column;  ← УБРАНО: теперь элементы в строке */
-  flex-wrap: wrap;           /* ← ДОБАВЛЕНО: перенос при нехватке места */
-  gap: 10px;
+  flex-wrap: nowrap;     /* ← НИКОГДА не переносить */
+  gap: 8px;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start; /* ← Выравнивание по верху для компактности */
 }
 .hero-text {
-  flex: 0 0 45%;             /* ← Увеличена ширина текста */
+  flex: 0 0 48%;         /* ← Почти половина ширины */
   color: var(--color-cream);
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  padding-right: 5px;
+  padding-right: 3px;
 }
-.hero-names { margin-bottom: 15px; }
-.hero-names .ampersand { font-size: 18px; margin: 0 4px; top: -2px; }
-.hero-star-img { width: 20px; height: 20px; margin: 10px auto; }
+.hero-names { margin-bottom: 8px; }
+.hero-names .ampersand { font-size: 16px; margin: 0 3px; top: -1px; }
+.hero-star-img { width: 18px; height: 18px; margin: 8px auto; }
 
 .hero-photo-container {
-  flex: 0 0 45%;             /* ← Уменьшена ширина фото */
+  flex: 0 0 48%;         /* ← Почти половина ширины */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   position: relative;
   max-width: none;
-  width: 45%;
-  min-width: 120px;          /* ← Минимальная ширина */
+  width: 48%;
+  min-width: 100px;      /* ← Минимальная ширина фото */
 }
 .arch-frame {
   max-width: 100%;
   aspect-ratio: 473 / 600;
-  border-radius: 90px 90px 0 0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  border-radius: 70px 70px 0 0; /* ← Чуть меньше скругление для компактности */
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
 }
 .arch-frame img {
   width: 100%;
@@ -806,32 +768,31 @@ section { padding-left: 10px !important; padding-right: 10px !important; }
   object-position: center top;
 }
 .hero-overlay-text {
-  bottom: -10px;
-  right: -10px;
+  position: absolute;
+  bottom: -8px;
+  right: -5px;
   text-align: right;
+  pointer-events: none;
+  white-space: nowrap;
 }
 .hero-overlay-text h2 {
-  font-size: 14px;
+  font-family: var(--font-heading);
+  font-size: 12px;       /* ← Компактный шрифт */
+  line-height: 1.1;
+  color: var(--color-cream);
+  text-shadow: 0 3px 8px rgba(0,0,0,0.3);
+  margin: 0;
 }
 
 .info-section { padding: 30px 5px; }
 .info-container { gap: 10px; }
 .info-text p { margin-bottom: 10px; }
 .info-date { font-size: 16px; }
-.calendar-container {
-  width: 130px;
-  min-width: 130px;
-  padding: 10px 5px;
-}
+.calendar-container { width: 130px; min-width: 130px; padding: 10px 5px; }
 .calendar-day { height: 20px; }
 .calendar-day.highlight { width: 20px; height: 20px; }
 
-.venue-section {
-  flex-direction: row;
-  gap: 10px;
-  padding: 30px 5px;
-  align-items: flex-start;
-}
+.venue-section { flex-direction: row; gap: 10px; padding: 30px 5px; align-items: flex-start; }
 .venue-text { flex: 1; text-align: left; min-width: 0; }
 .venue-text h2 { margin-bottom: 10px; }
 .venue-photo { flex: 0 0 90px; width: 90px; }
@@ -849,11 +810,7 @@ section { padding-left: 10px !important; padding-right: 10px !important; }
 .timeline-line { display: none; }
 .timeline { gap: 10px; flex-wrap: wrap; }
 .timeline-item { min-width: 80px; }
-.timeline-star-img {
-  width: 25px;
-  height: 25px;
-  margin-bottom: 10px;
-}
+.timeline-star-img { width: 25px; height: 25px; margin-bottom: 10px; }
 
 .countdown { gap: 10px; }
 .countdown-item { min-width: 50px; }
@@ -864,25 +821,22 @@ section { padding-left: 10px !important; padding-right: 10px !important; }
 .custom-control input { width: 14px; height: 14px; }
 }
 
-/* === ДОП. АДАПТАЦИЯ ДЛЯ ОЧЕНЬ УЗКИХ ЭКРАНОВ (<360px) === */
-@media (max-width: 360px) {
-  .hero-content {
-    flex-direction: column;  /* ← Только здесь разрешаем вертикаль */
+/* === ДОП. АДАПТАЦИЯ ДЛЯ ОЧЕНЬ УЗКИХ ЭКРАНОВ (<340px) === */
+/* Фото ВСЕГДА сбоку, просто уменьшаем элементы */
+@media (max-width: 340px) {
+  :root {
+    --fs-names: 28px;
+    --fs-hero-date: 14px;
   }
-  .hero-text, .hero-photo-container {
-    flex: 0 0 100%;
-    width: 100%;
-    max-width: 100%;
+  .hero-content { gap: 5px; }
+  .hero-text, .hero-photo-container { 
+    flex: 0 0 49%; 
+    width: 49%; 
+    min-width: 90px; 
   }
-  .arch-frame {
-    max-width: 200px;
-    border-radius: 100px 100px 0 0;
-  }
-  .hero-overlay-text {
-    position: static;
-    text-align: center;
-    margin-top: 10px;
-  }
+  .arch-frame { border-radius: 60px 60px 0 0; }
+  .hero-overlay-text h2 { font-size: 10px; }
+  .hero-names .ampersand { font-size: 14px; }
 }
 </style>
 </head>
@@ -1048,7 +1002,7 @@ section { padding-left: 10px !important; padding-right: 10px !important; }
 <!-- RSVP Section -->
 <section class="rsvp-section">
 <h2 class="animate-on-scroll heading">Анкета гостя</h2>
-<p class="rsvp-subtitle animate-on-scroll delay-1">Пожалуйста, подтвердите своё присутствие до 01 мая 2026</p>
+<p class="rsvp-subtitle animate-on-scroll delay-1">Пожалуйста, подтвердите своё присутствие<br>до 01 мая 2026</p>
 <div class="rsvp-form-container">
 <form id="weddingForm" onsubmit="submitForm(event)">
 <div class="form-group">
@@ -1088,128 +1042,85 @@ section { padding-left: 10px !important; padding-right: 10px !important; }
 
 <!-- Scripts -->
 <script>
-/* ========================================= */
-/* --- НАСТРОЙКИ АНИМАЦИЙ (JAVASCRIPT) --- */
-/* ========================================= */
-const ANIMATION_CONFIG = {
-threshold: 0.15,      // Порог срабатывания (0-1)
-rootMargin: '0px',    // Отступ срабатывания
-};
-
-/* ========================================= */
-/* --- SCROLL ANIMATIONS --- */
-/* ========================================= */
-const observerOptions = {
-root: null,
-rootMargin: ANIMATION_CONFIG.rootMargin,
-threshold: ANIMATION_CONFIG.threshold
-};
-
+const ANIMATION_CONFIG = { threshold: 0.15, rootMargin: '0px' };
+const observerOptions = { root: null, rootMargin: ANIMATION_CONFIG.rootMargin, threshold: ANIMATION_CONFIG.threshold };
 const observer = new IntersectionObserver((entries) => {
-entries.forEach(entry => {
-if (entry.isIntersecting) {
-entry.target.classList.add('visible');
-}
-});
+  entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('visible'); } });
 }, observerOptions);
-
 document.addEventListener('DOMContentLoaded', () => {
-const animatedElements = document.querySelectorAll('.animate-on-scroll, .timeline-item, .countdown-item, .countdown-photo, .rsvp-form-container');
-animatedElements.forEach(el => observer.observe(el));
+  const animatedElements = document.querySelectorAll('.animate-on-scroll, .timeline-item, .countdown-item, .countdown-photo, .rsvp-form-container');
+  animatedElements.forEach(el => observer.observe(el));
 });
 
-/* ========================================= */
-/* --- GALLERY --- */
-/* ========================================= */
-const galleries = {
-ladies: ['w1.jpg', 'w2.jpg', 'w3.jpg', 'w4.jpg', 'w5.jpg'],
-men: ['m1.jpg', 'm2.jpg', 'm3.jpg', 'm4.jpg', 'm5.jpg']
-};
+const galleries = { ladies: ['w1.jpg', 'w2.jpg', 'w3.jpg', 'w4.jpg', 'w5.jpg'], men: ['m1.jpg', 'm2.jpg', 'm3.jpg', 'm4.jpg', 'm5.jpg'] };
 const currentIndex = { ladies: 0, men: 0 };
 function changeGallery(type, direction) {
-currentIndex[type] += direction;
-if (currentIndex[type] < 0) currentIndex[type] = galleries[type].length - 1;
-else if (currentIndex[type] >= galleries[type].length) currentIndex[type] = 0;
-const items = document.querySelectorAll('.dresscode-item');
-let targetItem = null;
-items.forEach(item => {
-const title = item.querySelector('h3').textContent.trim().toLowerCase();
-if ((type === 'ladies' && title === 'девушки') || (type === 'men' && title === 'мужчины')) {
-targetItem = item;
-}
-});
-if (!targetItem) return;
-const img = targetItem.querySelector('.gallery-img');
-img.style.opacity = '0';
-setTimeout(() => {
-img.src = galleries[type][currentIndex[type]];
-img.onload = () => { img.style.opacity = '1'; };
-if (img.complete) img.style.opacity = '1';
-}, 300);
+  currentIndex[type] += direction;
+  if (currentIndex[type] < 0) currentIndex[type] = galleries[type].length - 1;
+  else if (currentIndex[type] >= galleries[type].length) currentIndex[type] = 0;
+  const items = document.querySelectorAll('.dresscode-item');
+  let targetItem = null;
+  items.forEach(item => {
+    const title = item.querySelector('h3').textContent.trim().toLowerCase();
+    if ((type === 'ladies' && title === 'девушки') || (type === 'men' && title === 'мужчины')) { targetItem = item; }
+  });
+  if (!targetItem) return;
+  const img = targetItem.querySelector('.gallery-img');
+  img.style.opacity = '0';
+  setTimeout(() => {
+    img.src = galleries[type][currentIndex[type]];
+    img.onload = () => { img.style.opacity = '1'; };
+    if (img.complete) img.style.opacity = '1';
+  }, 300);
 }
 
-/* ========================================= */
-/* --- COUNTDOWN --- */
-/* ========================================= */
 function updateCountdown() {
-const weddingDate = new Date('June 6, 2026 12:00:00').getTime();
-const now = new Date().getTime();
-const distance = weddingDate - now;
-if (distance < 0) {
-document.getElementById('days').textContent = "00";
-document.getElementById('hours').textContent = "00";
-document.getElementById('minutes').textContent = "00";
-document.getElementById('seconds').textContent = "00";
-return;
+  const weddingDate = new Date('June 6, 2026 12:00:00').getTime();
+  const now = new Date().getTime();
+  const distance = weddingDate - now;
+  if (distance < 0) {
+    document.getElementById('days').textContent = "00";
+    document.getElementById('hours').textContent = "00";
+    document.getElementById('minutes').textContent = "00";
+    document.getElementById('seconds').textContent = "00";
+    return;
+  }
+  const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+  document.getElementById('days').textContent = String(days).padStart(2, '0');
+  document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+  document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+  document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
 }
-const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-document.getElementById('days').textContent = String(days).padStart(2, '0');
-document.getElementById('hours').textContent = String(hours).padStart(2, '0');
-document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
-document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
-}
-setInterval(updateCountdown, 1000);
-updateCountdown();
+setInterval(updateCountdown, 1000); updateCountdown();
 
-/* ========================================= */
-/* --- FORM SUBMIT --- */
-/* ========================================= */
 async function submitForm(e) {
-e.preventDefault();
-const form = document.getElementById('weddingForm');
-const submitBtn = form.querySelector('.btn-submit');
-const originalText = submitBtn.textContent;
-submitBtn.textContent = "Отправка...";
-submitBtn.disabled = true;
-try {
-const fullNameInput = form.querySelector('input[name="fullname"]');
-const fullName = fullNameInput ? fullNameInput.value.trim() : '';
-const attendanceRadio = form.querySelector('input[name="attendance"]:checked');
-const attendance = attendanceRadio ? attendanceRadio.value : '';
-const drinkCheckboxes = form.querySelectorAll('input[name="drink"]:checked');
-const drinks = Array.from(drinkCheckboxes).map(cb => cb.nextElementSibling.textContent.trim());
-if (!fullName) { alert('Пожалуйста, введите ваше имя.'); submitBtn.textContent = originalText; submitBtn.disabled = false; return; }
-const payload = { name: fullName, attendance: attendance, drinks: drinks };
-const API_URL = 'http://10.8.0.79:8000/api/rsvp';
-const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-if (response.ok) {
-document.getElementById('successModal').style.display = 'flex';
-form.reset();
-} else {
-let errorMsg = 'Не удалось отправить заявку';
-try { const errorData = await response.json(); if (errorData.detail) errorMsg = errorData.detail; } catch (e) {}
-alert('Ошибка: ' + errorMsg);
-}
-} catch (error) {
-console.error('Error:', error);
-alert('Ошибка соединения (' + error.message + ').');
-} finally {
-submitBtn.textContent = originalText;
-submitBtn.disabled = false;
-}
+  e.preventDefault();
+  const form = document.getElementById('weddingForm');
+  const submitBtn = form.querySelector('.btn-submit');
+  const originalText = submitBtn.textContent;
+  submitBtn.textContent = "Отправка..."; submitBtn.disabled = true;
+  try {
+    const fullNameInput = form.querySelector('input[name="fullname"]');
+    const fullName = fullNameInput ? fullNameInput.value.trim() : '';
+    const attendanceRadio = form.querySelector('input[name="attendance"]:checked');
+    const attendance = attendanceRadio ? attendanceRadio.value : '';
+    const drinkCheckboxes = form.querySelectorAll('input[name="drink"]:checked');
+    const drinks = Array.from(drinkCheckboxes).map(cb => cb.nextElementSibling.textContent.trim());
+    if (!fullName) { alert('Пожалуйста, введите ваше имя.'); submitBtn.textContent = originalText; submitBtn.disabled = false; return; }
+    const payload = { name: fullName, attendance: attendance, drinks: drinks };
+    const API_URL = 'http://10.8.0.79:8000/api/rsvp';
+    const response = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    if (response.ok) { document.getElementById('successModal').style.display = 'flex'; form.reset(); } 
+    else {
+      let errorMsg = 'Не удалось отправить заявку';
+      try { const errorData = await response.json(); if (errorData.detail) errorMsg = errorData.detail; } catch (e) {}
+      alert('Ошибка: ' + errorMsg);
+    }
+  } catch (error) { console.error('Error:', error); alert('Ошибка соединения (' + error.message + ').'); } 
+  finally { submitBtn.textContent = originalText; submitBtn.disabled = false; }
 }
 function closeModal() { document.getElementById('successModal').style.display = 'none'; }
 </script>
@@ -1222,7 +1133,6 @@ function closeModal() { document.getElementById('successModal').style.display = 
 </div>
 </div>
 
-<!-- Фоновая музыка -->
 <audio id="bgMusic" loop preload="auto">
   <source src="music.mp3" type="audio/mpeg">
   Ваш браузер не поддерживает аудио элемент.
@@ -1230,23 +1140,12 @@ function closeModal() { document.getElementById('successModal').style.display = 
 <button id="musicToggle" class="music-toggle muted" aria-label="Включить музыку" title="Нажмите для музыки">🔇</button>
 
 <script>
-/* ========================================= */
-/* --- ФОНОВАЯ МУЗЫКА С АВТОЗАПУСКОМ --- */
-/* ========================================= */
 document.addEventListener('DOMContentLoaded', () => {
   const audio = document.getElementById('bgMusic');
   const toggleBtn = document.getElementById('musicToggle');
-  
-  // Устанавливаем комфортную громкость
   audio.volume = 0.7;
-  
-  // Проверяем, не выключал ли пользователь музыку ранее
   const musicDisabled = localStorage.getItem('weddingMusicDisabled') === 'true';
-  
-  // Состояние: музыка ещё не была активирована пользователем
   let musicActivated = false;
-  
-  // Обновление кнопки
   function updateButtonState(isPlaying) {
     if (isPlaying) {
       toggleBtn.textContent = '🔊';
@@ -1260,73 +1159,29 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleBtn.title = 'Включить музыку';
     }
   }
-  
-  // Инициализация кнопки
   updateButtonState(false);
-  
-  // Функция запуска музыки
   function playMusic() {
-    if (musicActivated) return; // Уже активировано
+    if (musicActivated) return;
     musicActivated = true;
-    
-    audio.play().then(() => {
-      updateButtonState(true);
-      console.log('🎵 Музыка запущена');
-    }).catch(err => {
-      console.log('Воспроизведение заблокировано:', err);
-      musicActivated = false; // Сбрасываем, чтобы попробовать снова
-    });
+    audio.play().then(() => { updateButtonState(true); console.log('🎵 Музыка запущена'); })
+    .catch(err => { console.log('Воспроизведение заблокировано:', err); musicActivated = false; });
   }
-  
-  // Обработчик кнопки
   toggleBtn.addEventListener('click', (e) => {
-    e.stopPropagation();
-    e.preventDefault();
-    
-    if (audio.paused || audio.muted) {
-      playMusic();
-    } else {
-      audio.pause();
-      updateButtonState(false);
-      localStorage.setItem('weddingMusicDisabled', 'true');
-    }
+    e.stopPropagation(); e.preventDefault();
+    if (audio.paused || audio.muted) { playMusic(); } 
+    else { audio.pause(); updateButtonState(false); localStorage.setItem('weddingMusicDisabled', 'true'); }
   });
-  
-  // ВАЖНО: Только клик и тап считаются за взаимодействие для аудио
-  // Скролл НЕ блокирует возможность запуска музыки
   const interactionEvents = ['click', 'touchstart', 'keydown'];
-  
   function onFirstInteraction(e) {
-    // Игнорируем клики по самой кнопке музыки (они обрабатываются отдельно)
     if (e.target === toggleBtn || toggleBtn.contains(e.target)) return;
-    
-    // Игнорируем клики по ссылкам и кнопкам (они могут иметь свои действия)
     if (e.target.closest('a') || e.target.closest('button') || e.target.closest('input')) return;
-    
-    if (!musicActivated && !musicDisabled) {
-      playMusic();
-    }
-    
-    // Удаляем обработчики после первого запуска
-    interactionEvents.forEach(evt => 
-      document.removeEventListener(evt, onFirstInteraction, { passive: true, capture: true })
-    );
+    if (!musicActivated && !musicDisabled) { playMusic(); }
+    interactionEvents.forEach(evt => document.removeEventListener(evt, onFirstInteraction, { passive: true, capture: true }));
   }
-  
-  // Подписываемся на события (capture: true чтобы ловить раньше других обработчиков)
-  interactionEvents.forEach(evt => 
-    document.addEventListener(evt, onFirstInteraction, { passive: true, capture: true })
-  );
-  
-  // Попытка автовоспроизведения при загрузке (может сработать в некоторых браузерах)
+  interactionEvents.forEach(evt => document.addEventListener(evt, onFirstInteraction, { passive: true, capture: true }));
   if (!musicDisabled) {
-    audio.play().then(() => {
-      musicActivated = true;
-      updateButtonState(true);
-    }).catch(() => {
-      // Ожидаем первого взаимодействия
-      console.log('⏸️ Автовоспроизведение заблокировано, ждём клика');
-    });
+    audio.play().then(() => { musicActivated = true; updateButtonState(true); })
+    .catch(() => { console.log('⏸️ Автовоспроизведение заблокировано, ждём клика'); });
   }
 });
 </script>
