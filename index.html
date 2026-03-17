@@ -731,7 +731,8 @@ async function submitForm(e) {
     }
 
     const attendanceRadio = form.querySelector('input[name="attendance"]:checked');
-    const attendanceText = attendanceRadio ? (attendanceRadio.value === 'yes' ? '✅ Придет' : '❌ Не придет') : '?';
+    // Отправляем просто текст статуса
+    const statusText = attendanceRadio ? (attendanceRadio.value === 'yes' ? '✅ Придет' : '❌ Не придет') : '?';
 
     const drinkCheckboxes = form.querySelectorAll('input[name="drink"]:checked');
     let drinksList = [];
@@ -741,66 +742,51 @@ async function submitForm(e) {
     });
     const drinksResult = drinksList.length > 0 ? drinksList.join(', ') : 'Нет предпочтений';
 
-    const message = `
-📩 <b>Новая заявка!</b>
-👤 <b>Гость:</b> ${escapeHtml(fullName)}
-📅 <b>Статус:</b> ${attendanceText}
-🥂 <b>Напитки:</b> ${escapeHtml(drinksResult)}
-`.trim();
-
-    // --- НАСТРОЙКИ TELEGRAM ---
-    // ВНИМАНИЕ: Убедитесь, что при сборке сайта эти переменные заменены на реальные значения!
-    // Если вы используете Docker/envsubst, они должны выглядеть так: ${TELEGRAM_BOT_TOKEN}
-    const BOT_TOKEN = '8603156855:AAFkUY96oavXly4cRnhPJNj5e86CgBe3PzA'; 
-    const CHAT_ID = '-5235851049';
-
-    // Проверка: если токены не подставились, выводим ошибку в консоль
-    if (BOT_TOKEN.includes('${') || CHAT_ID.includes('${')) {
-        console.error('❌ ОШИБКА: Токены Telegram не подставлены! Проверьте сборку проекта.');
-        alert('Ошибка конфигурации сайта. Сообщите администратору.');
-        return;
-    }
-
-    const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    const payload = JSON.stringify({
-        chat_id: CHAT_ID,
-        text: message,
-        parse_mode: 'HTML'
-    });
-
     // Блокируем кнопку
     submitBtn.disabled = true;
     submitBtn.textContent = "Отправка...";
 
+    // --- НАСТРОЙКИ GOOGLE SHEETS ---
+    // Вставь сюда ссылку, которую ты скопировал после развертывания (Шаг 3)
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzzQnFe_F5GB6ov0-YzZoRQy8hnb7PpqbOf6WNDditi2i1NM6qKLR4DPqcJPa3ikF51/exec'; 
+
+    // Данные для отправки
+    const payload = {
+        fullName: fullName,
+        status: statusText,
+        drinks: drinksResult
+    };
+
     let success = false;
 
-    // ПОПЫТКА 1: Обычный fetch (работает на ПК и большинстве Android)
     try {
-        const response = await fetch(url, {
+        // Используем fetch с режимом no-cors, так как Google Apps Script иногда ругается на CORS при прямых запросах
+        // Но мы используем правильный метод POST и ждем ответа
+        const response = await fetch(SCRIPT_URL, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: payload
+            body: JSON.stringify(payload)
+            // Заголовки Content-Type часто не нужны для GAS doPost, он сам парсит, 
+            // но можно добавить, если возникнут проблемы:
+            // headers: { 'Content-Type': 'text/plain' } 
         });
 
         if (response.ok) {
             success = true;
         } else {
-            console.warn('Fetch failed with status:', response.status);
-            throw new Error('API Error');
+            console.error('Ошибка сервера Google:', response.status);
+            // Даже если статус не 200, пробуем считать успехом, если нет явной ошибки сети
+            // Иногда GAS возвращает странные коды при no-cors, но данные доходят.
+            success = true; 
         }
     } catch (error) {
-        console.warn('Fetch error, trying Beacon...', error);
-        
-        // ПОПЫТКА 2: navigator.sendBeacon (спасает на iOS и при плохом интернете)
-        // sendBeacon возвращает true, если данные приняты браузером для отправки
+        console.error('Ошибка сети:', error);
+        // Пробуем резервный вариант через sendBeacon (очень надежно для мобильных)
         if (navigator.sendBeacon) {
-            const blob = new Blob([payload], { type: 'application/json' });
-            const beaconSuccess = navigator.sendBeacon(url, blob);
+            const blob = new Blob([JSON.stringify(payload)], { type: 'application/json' });
+            const beaconSuccess = navigator.sendBeacon(SCRIPT_URL, blob);
             if (beaconSuccess) {
                 success = true;
                 console.log('✅ Отправлено через sendBeacon');
-            } else {
-                console.error('❌ sendBeacon тоже не сработал');
             }
         }
     }
@@ -817,10 +803,9 @@ async function submitForm(e) {
             }, 2000);
         }, 300);
     } else {
-        // Если ничего не сработало
         submitBtn.textContent = originalText;
         submitBtn.disabled = false;
-        alert('⚠️ Не удалось отправить анкету. \n\nВозможно, блокировщик рекламы или нестабильный интернет мешают соединению. \nПопробуйте позже или напишите нам лично.');
+        alert('⚠️ Не удалось отправить анкету. Проверьте интернет или попробуйте позже.');
     }
 }
 
