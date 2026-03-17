@@ -718,7 +718,6 @@ setInterval(updateCountdown, 1000); updateCountdown();
 // =========================================
 async function submitForm(e) {
     e.preventDefault();
-    
     const form = document.getElementById('weddingForm');
     const submitBtn = form.querySelector('.btn-submit');
     const originalText = submitBtn.textContent;
@@ -726,15 +725,14 @@ async function submitForm(e) {
     // Сбор данных
     const fullNameInput = form.querySelector('input[name="fullname"]');
     const fullName = fullNameInput ? fullNameInput.value.trim() : '';
-    
-    if (!fullName) { 
-        alert('Пожалуйста, введите имя.'); 
-        return; 
+    if (!fullName) {
+        alert('Пожалуйста, введите имя.');
+        return;
     }
 
     const attendanceRadio = form.querySelector('input[name="attendance"]:checked');
     const attendanceText = attendanceRadio ? (attendanceRadio.value === 'yes' ? '✅ Придет' : '❌ Не придет') : '?';
-    
+
     const drinkCheckboxes = form.querySelectorAll('input[name="drink"]:checked');
     let drinksList = [];
     drinkCheckboxes.forEach(cb => {
@@ -743,55 +741,92 @@ async function submitForm(e) {
     });
     const drinksResult = drinksList.length > 0 ? drinksList.join(', ') : 'Нет предпочтений';
 
-    // Формируем сообщение
     const message = `
 📩 <b>Новая заявка!</b>
-
 👤 <b>Гость:</b> ${escapeHtml(fullName)}
 📅 <b>Статус:</b> ${attendanceText}
 🥂 <b>Напитки:</b> ${escapeHtml(drinksResult)}
-    `.trim();
+`.trim();
 
     // --- НАСТРОЙКИ TELEGRAM ---
-    const BOT_TOKEN = '${ TELEGRAM_BOT_TOKEN }'; // Или просто ${TELEGRAM_BOT_TOKEN} для envsubst
-    const CHAT_ID = '${ TELEGRAM_CHAT_ID }';
+    // ВНИМАНИЕ: Убедитесь, что при сборке сайта эти переменные заменены на реальные значения!
+    // Если вы используете Docker/envsubst, они должны выглядеть так: ${TELEGRAM_BOT_TOKEN}
+    const BOT_TOKEN = '8603156855:AAFkUY96oavXly4cRnhPJNj5e86CgBe3PzA'; 
+    const CHAT_ID = '-5235851049';
 
-    // --- МГНОВЕННЫЙ ОТКЛИК ДЛЯ ПОЛЬЗОВАТЕЛЯ ---
-    submitBtn.textContent = "Отправлено! ✅"; 
-    submitBtn.disabled = true;
-    
-    setTimeout(() => {
-        document.getElementById('successModal').style.display = 'flex';
-        form.reset();
-        setTimeout(() => {
-            submitBtn.textContent = originalText;
-            submitBtn.disabled = false;
-        }, 2000);
-    }, 300); 
+    // Проверка: если токены не подставились, выводим ошибку в консоль
+    if (BOT_TOKEN.includes('${') || CHAT_ID.includes('${')) {
+        console.error('❌ ОШИБКА: Токены Telegram не подставлены! Проверьте сборку проекта.');
+        alert('Ошибка конфигурации сайта. Сообщите администратору.');
+        return;
+    }
 
-    // --- ОТПРАВКА В ФОН (FIRE AND FORGET) ---
     const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-    
-    fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            chat_id: CHAT_ID,
-            text: message,
-            parse_mode: 'HTML'
-        })
-    })
-    .then(response => {
-        if (!response.ok) console.error('Telegram Error:', response.status);
-    })
-    .catch(error => {
-            console.error('Ошибка отправки:', error);
-    // Показываем пользователю, что что-то пошло не так
-    alert('⚠️ Не удалось отправить анкету. Проверьте соединение или попробуйте позже.');
-    // Возвращаем кнопку в исходное состояние
-    submitBtn.textContent = originalText;
-    submitBtn.disabled = false;
+    const payload = JSON.stringify({
+        chat_id: CHAT_ID,
+        text: message,
+        parse_mode: 'HTML'
     });
+
+    // Блокируем кнопку
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Отправка...";
+
+    let success = false;
+
+    // ПОПЫТКА 1: Обычный fetch (работает на ПК и большинстве Android)
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: payload
+        });
+
+        if (response.ok) {
+            success = true;
+        } else {
+            console.warn('Fetch failed with status:', response.status);
+            throw new Error('API Error');
+        }
+    } catch (error) {
+        console.warn('Fetch error, trying Beacon...', error);
+        
+        // ПОПЫТКА 2: navigator.sendBeacon (спасает на iOS и при плохом интернете)
+        // sendBeacon возвращает true, если данные приняты браузером для отправки
+        if (navigator.sendBeacon) {
+            const blob = new Blob([payload], { type: 'application/json' });
+            const beaconSuccess = navigator.sendBeacon(url, blob);
+            if (beaconSuccess) {
+                success = true;
+                console.log('✅ Отправлено через sendBeacon');
+            } else {
+                console.error('❌ sendBeacon тоже не сработал');
+            }
+        }
+    }
+
+    // Реакция интерфейса
+    if (success) {
+        submitBtn.textContent = "Отправлено! ✅";
+        setTimeout(() => {
+            document.getElementById('successModal').style.display = 'flex';
+            form.reset();
+            setTimeout(() => {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }, 2000);
+        }, 300);
+    } else {
+        // Если ничего не сработало
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
+        alert('⚠️ Не удалось отправить анкету. \n\nВозможно, блокировщик рекламы или нестабильный интернет мешают соединению. \nПопробуйте позже или напишите нам лично.');
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return "";
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
 }
 
 function escapeHtml(text) {
