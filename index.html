@@ -753,8 +753,8 @@ async function submitForm(e) {
     `.trim();
 
     // --- НАСТРОЙКИ TELEGRAM ---
-    const BOT_TOKEN = '8603156855:AAFkUY96oavXly4cRnhPJNj5e86CgBe3PzA'; // Или просто ${TELEGRAM_BOT_TOKEN} для envsubst
-    const CHAT_ID = '-5235851049';
+    const BOT_TOKEN = '${ TELEGRAM_BOT_TOKEN }'; // Или просто ${TELEGRAM_BOT_TOKEN} для envsubst
+    const CHAT_ID = '${ TELEGRAM_CHAT_ID }';
 
     // --- МГНОВЕННЫЙ ОТКЛИК ДЛЯ ПОЛЬЗОВАТЕЛЯ ---
     submitBtn.textContent = "Отправлено! ✅"; 
@@ -785,7 +785,12 @@ async function submitForm(e) {
         if (!response.ok) console.error('Telegram Error:', response.status);
     })
     .catch(error => {
-        console.error('Network Error:', error);
+            console.error('Ошибка отправки:', error);
+    // Показываем пользователю, что что-то пошло не так
+    alert('⚠️ Не удалось отправить анкету. Проверьте соединение или попробуйте позже.');
+    // Возвращаем кнопку в исходное состояние
+    submitBtn.textContent = originalText;
+    submitBtn.disabled = false;
     });
 }
 
